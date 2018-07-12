@@ -4,8 +4,16 @@
     <meta charset="utf-8">
     <title>50.021 AI Project: Visual Question Answering</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/main.css" />
   </head>
   <body>
     <h1>Visual Question Answering</h1>
+    <div>
+      <input type="file" onchange="vqa.setImage(this)" />
+    </div>
+    <div>
+      <input type="text" name="question" onchange="vqa.setQuestion(this)" />
+    </div>
+    <script src="/static/js/app.js"></script>
   </body>
 </html>

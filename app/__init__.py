@@ -7,18 +7,16 @@ class APIError(Exception):
     pass
 
 
-@app.route('/')
-def index():
-    return app.send_static_file('index.html')
-
-
 @app.errorhandler(APIError)
 def api_error(e):
     return json.jsonify({'status': 'error', 'message': str(e)})
 
 
-@app.route('/query', methods=('POST',))
-def query():
+@app.route('/', methods=('GET', 'POST'))
+def index():
+    if request.method == 'GET':
+        return app.send_static_file('index.html')
+
     q = request.get_json()
 
     try:
