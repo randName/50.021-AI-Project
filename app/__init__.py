@@ -1,3 +1,7 @@
+from io import BytesIO
+from base64 import b64decode
+
+from PIL import Image
 from flask import Flask, json, request
 
 app = Flask(__name__)
@@ -21,6 +25,8 @@ def index():
 
     try:
         image = q['image']
+        fmt, data = image[4:].split(';base64,')
+        image = Image.open(BytesIO(b64decode(data.encode())))
     except KeyError:
         raise APIError('no image received')
 
