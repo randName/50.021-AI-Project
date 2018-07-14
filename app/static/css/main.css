@@ -17,3 +17,9 @@
 .mdl-textfield--file .mdl-button--file {
     right: 0;
 }
+
+.mdl-card__actions {
+    display: flex;
+    box-sizing:border-box;
+    align-items: center;
+}

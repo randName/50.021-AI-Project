@@ -4,6 +4,8 @@ from base64 import b64decode
 from PIL import Image
 from flask import Flask, json, request
 
+from .vqa import vqa
+
 app = Flask(__name__)
 
 
@@ -39,10 +41,11 @@ def index():
     except KeyError:
         raise APIError('no question asked')
 
+    answer = vqa(image, question)
+
     resp = {
         'status': 'ok',
-        'question': question,
-        'answer': 'Lorem ipsum dolor sit amet',
+        'answer': answer,
     }
 
     return json.jsonify(resp)

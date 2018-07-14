@@ -3,6 +3,7 @@ const filename = document.getElementById('fn');
 const snackbar = document.getElementById('sn');
 const answertx = document.getElementById('an');
 const uploadbt = document.getElementById('bn');
+const spinner = document.getElementById('spin');
 
 filename.onclick = () => uploadbt.click();
 
@@ -32,6 +33,7 @@ class VQA {
   }
 
   ask() {
+    spinner.MaterialSpinner.start();
     this.query().then(r => {
       if (r.status == 'ok') {
         console.log(r);
@@ -40,6 +42,7 @@ class VQA {
       } else {
         snack(r.message);
       }
+      spinner.MaterialSpinner.stop();
     });
   }
 
