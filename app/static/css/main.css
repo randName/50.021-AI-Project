@@ -1,0 +1,25 @@
+.mdl-button--file input {
+    position: absolute;
+    height: 100%;
+    width: 300px;
+    right: 0;
+    top: 0;
+    opacity: 0;
+    z-index: 4;
+    cursor: pointer;
+}
+
+.mdl-textfield--file .mdl-textfield__input {
+    box-sizing: border-box;
+    width: calc(100% - 32px);
+}
+
+.mdl-textfield--file .mdl-button--file {
+    right: 0;
+}
+
+.mdl-card__actions {
+    display: flex;
+    box-sizing:border-box;
+    align-items: center;
+}
