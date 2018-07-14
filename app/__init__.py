@@ -29,6 +29,10 @@ def index():
         image = Image.open(BytesIO(b64decode(data.encode())))
     except KeyError:
         raise APIError('no image received')
+    except ValueError:
+        raise APIError('malformed data')
+    except OSError:
+        raise APIError('cannot identify image')
 
     try:
         question = q['question']

@@ -22,6 +22,10 @@ class VQA {
 
   setImage(e) {
     let file = e.files[0];
+    if (!file.type.includes('image')) {
+      snack('not an image');
+      return;
+    }
     filename.value = file.name;
     reader.onloadend = () => {this.image = reader.result};
     reader.readAsDataURL(file);
