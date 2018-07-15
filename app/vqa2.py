@@ -43,7 +43,7 @@ def main(imgpath, qn, use_gpu = False):
 	'''
 	# --- load vocab
 	with open("vocab.json", 'r') as fd:
-    vocab_json = json.load(fd)
+    		vocab_json = json.load(fd)
         
 	vocab = vocab_json
 	token_to_index = vocab['question']
