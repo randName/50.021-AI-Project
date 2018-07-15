@@ -34,8 +34,8 @@ class Net(nn.Module):
         glimpses = 2
 
         self.text = TextProcessor(
-            embedding_tokens=embedding_tokens,
-            embedding_features=300,
+            tokens=embedding_tokens,
+            features=300,
             lstm_features=question_features,
             drop=0.5,
         )
@@ -82,12 +82,12 @@ class Classifier(nn.Sequential):
 
 
 class TextProcessor(nn.Module):
-    def __init__(self, emb_tokens, emb_features, lstm_features, drop=0.0):
+    def __init__(self, tokens, features, lstm_features, drop=0.0):
         super(TextProcessor, self).__init__()
-        self.embedding = nn.Embedding(emb_tokens, emb_features, padding_idx=0)
+        self.embedding = nn.Embedding(tokens, features, padding_idx=0)
         self.drop = nn.Dropout(drop)
         self.tanh = nn.Tanh()
-        self.lstm = nn.LSTM(input_size=emb_features,
+        self.lstm = nn.LSTM(input_size=features,
                             hidden_size=lstm_features,
                             num_layers=1)
         self.features = lstm_features
