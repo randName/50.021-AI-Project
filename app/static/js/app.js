@@ -62,7 +62,8 @@ class VQA {
       method: 'POST', mode: 'cors',
       body: JSON.stringify({image, question}),
       headers: {'content-type': 'application/json'}
-    }).then(r => r.json());
+    }).then(r => r.json())
+      .catch(e => return Promise.resolve({status: 'error', message: 'server error'}));
   }
 }
 
