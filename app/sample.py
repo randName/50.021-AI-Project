@@ -17,11 +17,7 @@ class Sample():
     def __init__(self, path):
         with open(config.vocabulary_path, 'r') as fd:
             vocab = json.load(fd)
-
-        # results = torch.load(path)
         results = torch.load(path, map_location=lambda storage, loc: storage)
-
-        #print("LOADED MODEL FROM EPOCH {}".format(results['epoch']))
 
         self.answers = {v: k for k, v in vocab['answer'].items()}
         self.token_to_index = vocab['question']
@@ -63,7 +59,7 @@ class Sample():
 
             out = self.softmax(out) # to get confidence
 
-            answer = out.data.topk(topk, dim=1) # top k number of answers
+            answer = out.data.topk(topk, dim=1)
 
             answers = []
 
