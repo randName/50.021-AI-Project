@@ -1,20 +1,34 @@
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
-import torch.nn.init as init
+
+from torch import nn
+from torch.nn import init
 from torch.nn.utils.rnn import pack_padded_sequence
 
-from . import config
+from . import config, caffe_resnet
+
+
+class Resnet(nn.Module):
+
+    def __init__(self):
+        super().__init__()
+        self.model = caffe_resnet.resnet152(pretrained=True)
+
+        def save_out(module, i, o):
+            self.buffer = o
+
+        self.model.layer4.register_forward_hook(save_out)
+
+    def forward(self, x):
+        self.model(x)
+        return self.buffer
 
 
 class Net(nn.Module):
-    """ Re-implementation of ``Show, Ask, Attend, and Answer: A Strong Baseline For Visual Question Answering'' [0]
-
-    [0]: https://arxiv.org/abs/1704.03162
-    """
+    """Re-implementation of https://arxiv.org/abs/1704.03162"""
 
     def __init__(self, embedding_tokens):
-        super(Net, self).__init__()
+        super().__init__()
         question_features = 1024
         vision_features = config.output_features
         glimpses = 2
@@ -68,12 +82,12 @@ class Classifier(nn.Sequential):
 
 
 class TextProcessor(nn.Module):
-    def __init__(self, embedding_tokens, embedding_features, lstm_features, drop=0.0):
+    def __init__(self, emb_tokens, emb_features, lstm_features, drop=0.0):
         super(TextProcessor, self).__init__()
-        self.embedding = nn.Embedding(embedding_tokens, embedding_features, padding_idx=0)
+        self.embedding = nn.Embedding(emb_tokens, emb_features, padding_idx=0)
         self.drop = nn.Dropout(drop)
         self.tanh = nn.Tanh()
-        self.lstm = nn.LSTM(input_size=embedding_features,
+        self.lstm = nn.LSTM(input_size=emb_features,
                             hidden_size=lstm_features,
                             num_layers=1)
         self.features = lstm_features
@@ -98,12 +112,11 @@ class TextProcessor(nn.Module):
 
 
 class Attention(nn.Module):
-    def __init__(self, v_features, q_features, mid_features, glimpses, drop=0.0):
+    def __init__(self, v_features, q_features, mid_features, glimpses, drop=0):
         super(Attention, self).__init__()
-        self.v_conv = nn.Conv2d(v_features, mid_features, 1, bias=False)  # let self.lin take care of bias
+        self.v_conv = nn.Conv2d(v_features, mid_features, 1, bias=False)
         self.q_lin = nn.Linear(q_features, mid_features)
         self.x_conv = nn.Conv2d(mid_features, glimpses, 1)
-
         self.drop = nn.Dropout(drop)
         self.relu = nn.ReLU(inplace=True)
 
@@ -116,40 +129,28 @@ class Attention(nn.Module):
         return x
 
 
-def apply_attention(input, attention):
-    """ Apply any number of attention maps over the input.
-        The attention map has to have the same size in all dimensions except dim=1.
-    """
-    n, c = input.size()[:2]
+def apply_attention(inp, attention):
+    """Apply any number of attention maps over the input."""
+    n, c = inp.size()[:2]
     glimpses = attention.size(1)
 
-    # flatten the spatial dims into the third dim, since we don't need to care about how they are arranged
-    input = input.view(n, c, -1)
+    inp = inp.view(n, c, -1)
     attention = attention.view(n, glimpses, -1)
-    s = input.size(2)
-
-    # apply a softmax to each attention map separately
-    # since softmax only takes 2d inputs, we have to collapse the first two dimensions together
-    # so that each glimpse is normalized separately
+    s = inp.size(2)
     attention = attention.view(n * glimpses, -1)
-    attention = F.softmax(attention)
+    attention = F.softmax(attention, dim=1)
 
-    # apply the weighting by creating a new dim to tile both tensors over
     target_size = [n, glimpses, c, s]
-    input = input.view(n, 1, c, s).expand(*target_size)
+    inp = inp.view(n, 1, c, s).expand(*target_size)
     attention = attention.view(n, glimpses, 1, s).expand(*target_size)
-    weighted = input * attention
-    # sum over only the spatial dimension
+    weighted = inp * attention
     weighted_mean = weighted.sum(dim=3)
-    # the shape at this point is (n, glimpses, c, 1)
     return weighted_mean.view(n, -1)
 
 
-def tile_2d_over_nd(feature_vector, feature_map):
-    """ Repeat the same feature vector over all spatial positions of a given feature map.
-        The feature vector should have the same batch size and number of features as the feature map.
-    """
-    n, c = feature_vector.size()
-    spatial_size = feature_map.dim() - 2
-    tiled = feature_vector.view(n, c, *([1] * spatial_size)).expand_as(feature_map)
+def tile_2d_over_nd(f_vector, f_map):
+    """Repeat the same feature vector over all spatial positions"""
+    n, c = f_vector.size()
+    spatial_size = f_map.dim() - 2
+    tiled = f_vector.view(n, c, *([1] * spatial_size)).expand_as(f_map)
     return tiled

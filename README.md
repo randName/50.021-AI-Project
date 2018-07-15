@@ -4,7 +4,7 @@
 
 `pipenv install`
 
-Ensure `weights.pth` is in the main folder and `resnet152.pth` is in the `app/resnet` folder.
+Copy `weights.pth` and `resnet152.pth` to the main folder.
 
 ## Run
 

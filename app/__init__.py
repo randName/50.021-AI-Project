@@ -41,11 +41,14 @@ def index():
     except KeyError:
         raise APIError('no question asked')
 
-    answer = vqa(image, question)
+    answers = tuple(vqa(image, question))
+    answer = answers[0][0]
+    print(answers)
 
     resp = {
         'status': 'ok',
         'answer': answer,
+        'answers': answers,
     }
 
     return json.jsonify(resp)
