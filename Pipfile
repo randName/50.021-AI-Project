@@ -6,6 +6,9 @@ name = "pypi"
 [packages]
 flask = "*"
 pillow = "*"
+"h5py" = "*"
+torch = "*"
+torchvision = "*"
 
 [dev-packages]
 "flake8" = "*"
