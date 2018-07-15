@@ -1,10 +1,9 @@
 import json
-from collections import Counter
 import itertools
 
-import config
-import data
-import utils
+from collections import Counter
+
+from . import config, data, utils
 
 
 def extract_vocab(iterable, top_k=None, start=0):

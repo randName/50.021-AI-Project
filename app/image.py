@@ -4,12 +4,13 @@ import torch.nn as nn
 import torch.backends.cudnn as cudnn
 import torch.utils.data
 import torchvision.models as models
-from tqdm import tqdm
+try:
+    from tqdm import tqdm
+except ImportError:
+    tqdm = lambda x: ()
 
-import config
-import data
-import utils
-from resnet import resnet as caffe_resnet
+from . import config, data, utils
+from .resnet import resnet as caffe_resnet
 
 
 class Net(nn.Module):
