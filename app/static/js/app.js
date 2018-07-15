@@ -4,6 +4,7 @@ const snackbar = document.getElementById('sn');
 const answertx = document.getElementById('an');
 const uploadbt = document.getElementById('bn');
 const spinner = document.getElementById('spin');
+const shower = document.getElementById('image');
 
 filename.onclick = () => uploadbt.click();
 
@@ -28,7 +29,7 @@ class VQA {
       return;
     }
     filename.value = file.name;
-    reader.onloadend = () => {this.image = reader.result};
+    reader.onloadend = () => {shower.src = this.image = reader.result};
     reader.readAsDataURL(file);
   }
 
